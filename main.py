@@ -1,16 +1,12 @@
 
-import queue
-import threading
 import jieba
 import time
 import re
-import math
-import multiprocessing
+import sys
 
 '''
 项目概述：
 实现文章查重功能，给出两篇文章相似的百分比（精确到小数点后两位）
-同时为了性能优先，使用多进程编程
 支持读入的文本格式：.txt文件。
 
 项目开始日期：2020/9/20
@@ -21,6 +17,15 @@ auther：White0PS
 
 class diff_find:
 
+    '''
+    __check_file方法：
+    f1参数：文本文件路径（字符串类型）
+    f2参数：文本文件路径（字符串类型）
+    执行功能：
+    1、对文件名后缀进行校验，如果不是".txt"文件就退出程序
+    2、读取文件内容，并对文件中非中文字符串内容进行清洗
+
+    '''
     def __check_file(self,f1,f2):
         ext1 = f1[f1.rfind('.'):]    #不能使用index方法，该方法会查找子串第一次出现的地方。使用rfind方法。
         ext2 = f2[f2.rfind('.'):]
@@ -39,17 +44,26 @@ class diff_find:
 
 
             except:#文件无法打开，文件上传失败。
-                print('[-]文件有误！')
+                print('\033[31m', end='')
+                print('[-]文件路径有误！')
                 print('[-]exiting!')
                 return 0
 
         else:
-            print("[-]文件输入不通过！")
+            print('\033[31m', end='')
+            print("[-]文件扩展名不支持！")
             print("[-]Exiting!")
             return 0
 
-
-    def f_open(self,first_file,second_file):
+    '''
+    f_open方法：
+    传入参数：
+    first_file：比较文本文件绝对路径（字符串类型）；
+    second_file：比较文本的绝对路径（字符串类型）
+    方法功能：
+    调用私有方法__analisys，获取其返回的参数，并作输出。
+    '''
+    def f_open(self,first_file,second_file,out_file):
         if(self.__check_file(first_file,second_file)):
 
             take_time,rate = self.__analysis(self.__f1,self.__f2)
@@ -64,10 +78,20 @@ class diff_find:
                 print('\033[33m', end='')
                 print('[*]所用时间：%.2f' % take_time + 's')
 
+            f = open(out_file,'w')
+            str_in = '重复率为：%.2f'%(rate*100) +'%' +', 花费时间：%.2f' %take_time +'s'
+            f.write(str_in)
             return
-
-
-
+    '''
+    __analysis()私有方法：
+    传入参数：
+    text1：要进行比对的字符串1
+    text2：要进行比对的字符串2
+    方法功能：
+    使用jieba分词，并统计词频，查看两个字符串中重复的词语数目，并以此得到两个文本的相似率。并统计所花费的时间。将重复率、所花费时间打包成为列表
+    作为返回值。
+    
+    '''
     def __analysis(self,text1,text2):#该函数应当返回：查重率。
         return_list = []
         t1 = time.time()
@@ -91,10 +115,16 @@ class diff_find:
         return_list.append(take_time)
         rate = same_words/len(word_ls1)
         return_list.append(rate)
-        return return_list
+        return return_list          #返回值是一个包含相似率、所花费时间的一个列表
 
 
 
 if __name__ =='__main__':
     file_ob = diff_find()
-    file_ob.f_open(r'C:\Users\wu\Desktop\method\test\orig.txt',r'C:\Users\wu\Desktop\method\test\orig_0.8_del.txt')
+    #file_ob.f_open(r'C:\Users\wu\Desktop\method\test\orig.txt',r'C:\Users\wu\Desktop\method\test\orig_0.8_del.txt','abc.txt')
+    #命令行参数：python main.py C:\Users\wu\Desktop\method\test\orig.txt C:\Users\wu\Desktop\method\test\orig_0.8_del.txt
+    try:#命令行输入参数不够时的错误处理
+        file_ob.f_open(sys.argv[1],sys.argv[2],sys.argv[3])
+    except IndexError as e:
+        print("[-]输入参数不够")
+
