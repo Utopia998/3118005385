@@ -31,23 +31,16 @@ class diff_find:
         ext2 = f2[f2.rfind('.'):]
 
         if ext1 in ['.txt'] and ext2 in ['.txt']:
-            try:
-                file1_content= open(f1,encoding='utf-8').read()
-                file2_content = open(f2,encoding='utf-8').read()   #在此处进行文本预处理。将文本中包含的符号、非汉字进行去除。
-                self.__f1 =  re.findall('[\u3002\uff1b\uff0c\uff1a\u201c\u201d\uff08\uff09\u3001\uff1f\u300a\u300b\u4e00-\u9fa5]',file1_content)
-                self.__f2 = re.findall(
-                    '[\u3002\uff1b\uff0c\uff1a\u201c\u201d\uff08\uff09\u3001\uff1f\u300a\u300b\u4e00-\u9fa5]',
-                    file2_content)
-                self.__f1 = ''.join(self.__f1)
-                self.__f2 = ''.join(self.__f2)
-                return 1
 
-
-            except:#文件无法打开，文件上传失败。
-                print('\033[31m', end='')
-                print('[-]文件路径有误！')
-                print('[-]exiting!')
-                return 0
+            file1_content= open(f1,encoding='utf-8').read()
+            file2_content = open(f2,encoding='utf-8').read()   #在此处进行文本预处理。将文本中包含的符号、非汉字进行去除。
+            self.__f1 =  re.findall('[\u3002\uff1b\uff0c\uff1a\u201c\u201d\uff08\uff09\u3001\uff1f\u300a\u300b\u4e00-\u9fa5]',file1_content)
+            self.__f2 = re.findall(
+                '[\u3002\uff1b\uff0c\uff1a\u201c\u201d\uff08\uff09\u3001\uff1f\u300a\u300b\u4e00-\u9fa5]',
+                file2_content)
+            self.__f1 = ''.join(self.__f1)
+            self.__f2 = ''.join(self.__f2)
+            return 1
 
         else:
             print('\033[31m', end='')
@@ -81,7 +74,7 @@ class diff_find:
             f = open(out_file,'w')
             str_in = '重复率为：%.2f'%(rate*100) +'%' +', 花费时间：%.2f' %take_time +'s'
             f.write(str_in)
-            return
+            return 1
     '''
     __analysis()私有方法：
     传入参数：
